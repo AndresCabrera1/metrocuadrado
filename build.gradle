@@ -1,0 +1,73 @@
+group 'com.co.metro.cuadrado.web'
+version '1.0-SNAPSHOT'
+
+defaultTasks 'clean','test','aggregate', "--info"
+
+repositories {
+    mavenCentral()
+}
+
+
+
+buildscript {
+    repositories {
+        mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+        google()
+        jcenter()
+    }
+    dependencies {
+        classpath "net.serenity-bdd:serenity-gradle-plugin:2.1.5"
+        classpath "net.serenity-bdd:serenity-single-page-report:2.1.5"
+        classpath "net.serenity-bdd:serenity-gradle-plugin:2.0.75"
+        classpath "gradle.plugin.com.github.sherter.google-java-format:google-java-format-gradle-plugin:0.8"
+        classpath "io.freefair.gradle:lombok-plugin:5.2.1"
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'net.serenity-bdd.aggregator'
+apply plugin: "io.freefair.lombok"
+
+test {
+    systemProperty "file.encoding", "utf-8"
+}
+
+tasks.withType(JavaCompile){
+    options.encoding = 'UTF-8'
+}
+
+ext {
+    serenityVersion = '2.1.5'
+    serenityCucumberVersion = '2.2.5'
+    slf4jVersion = '1.7.30'
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+
+serenity {
+    reports = ["single-page-html"]
+}
+
+dependencies {
+
+    implementation group: 'net.serenity-bdd',                   name: 'serenity-core',                      version: "$rootProject.ext.serenityVersion"
+    implementation group: 'net.serenity-bdd',                   name: 'serenity-junit',                     version: "$rootProject.ext.serenityVersion"
+    implementation group: 'net.serenity-bdd',                   name: 'serenity-screenplay',                version: "$rootProject.ext.serenityVersion"
+    implementation group: 'net.serenity-bdd',                   name: 'serenity-cucumber5',                 version: "$rootProject.ext.serenityCucumberVersion"
+    implementation group: 'org.slf4j',                          name: 'slf4j-api',                          version: "$rootProject.ext.slf4jVersion"
+    implementation group: 'org.slf4j',                          name: 'slf4j-log4j12',                      version: "$rootProject.ext.slf4jVersion"
+    testCompile    group: 'org.slf4j',                          name: 'slf4j-simple',                       version: "$rootProject.ext.slf4jVersion"
+    compile        group: 'com.fasterxml.jackson.core',         name: 'jackson-annotations',                version: '2.12.1'
+    compile        group: 'com.googlecode.json-simple',         name: 'json-simple',                        version: '1.1.1'
+
+}
+
+gradle.startParameter.continueOnFailure = true
+test.finalizedBy(aggregate)
+test.finalizedBy(reports)
